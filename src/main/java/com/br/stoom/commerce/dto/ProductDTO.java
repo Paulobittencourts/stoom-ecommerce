@@ -1,46 +1,42 @@
-package com.br.stoom.commerce.model;
+package com.br.stoom.commerce.dto;
 
-
-import com.br.stoom.commerce.model.Enum.AvailabilityStatus;
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-import java.util.UUID;
-
-@Entity
-@Table(name = "product")
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductModel {
+public class ProductDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @JsonProperty("id")
+    private String id;
 
+    @JsonProperty("title")
     private String title;
 
+    @JsonProperty("category")
     private String category;
 
+    @JsonProperty("brand")
     private String brand;
 
+    @JsonProperty("description")
     private String description;
 
+    @JsonProperty("price")
     private Double price;
 
+    @JsonProperty("stock")
     private Integer stock;
 
-    @Enumerated(EnumType.STRING)
-    private AvailabilityStatus availability;
+    @JsonProperty("availability")
+    private String availability;
 
-
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -92,11 +88,11 @@ public class ProductModel {
         this.stock = stock;
     }
 
-    public AvailabilityStatus getAvailability() {
+    public String getAvailability() {
         return availability;
     }
 
-    public void setAvailability(AvailabilityStatus availability) {
+    public void setAvailability(String availability) {
         this.availability = availability;
     }
 }
