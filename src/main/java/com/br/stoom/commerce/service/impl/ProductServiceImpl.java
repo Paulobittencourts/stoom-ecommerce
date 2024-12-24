@@ -1,6 +1,7 @@
 package com.br.stoom.commerce.service.impl;
 
 import com.br.stoom.commerce.dto.ProductDTO;
+import com.br.stoom.commerce.model.ProductModel;
 import com.br.stoom.commerce.repository.ProductRepository;
 import com.br.stoom.commerce.service.DefaultProductService;
 import org.modelmapper.ModelMapper;
@@ -27,12 +28,14 @@ public class ProductServiceImpl implements DefaultProductService {
 
     @Override
     public Page<ProductDTO> getAllProducts(final Pageable pageable) {
-        final List<ProductDTO> productDTOs = productRepository.findAll(pageable)
-                .stream()
-                .map(product ->
-                        modelMapper.map(product, ProductDTO.class))
+
+        final Page<ProductModel> pageOfProducts = productRepository.findAll(pageable);
+
+        final List<ProductDTO> productDTOs = pageOfProducts.getContent().stream()
+                .map(product -> modelMapper.map(product, ProductDTO.class))
                 .toList();
 
-        return new PageImpl<>(productDTOs);
+        return new PageImpl<>(productDTOs, pageable, pageOfProducts.getTotalElements());
+
     }
 }
