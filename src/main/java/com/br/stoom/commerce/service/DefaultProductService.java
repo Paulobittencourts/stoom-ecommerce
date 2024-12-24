@@ -7,4 +7,6 @@ import org.springframework.data.domain.Pageable;
 public interface DefaultProductService {
 
     Page<ProductDTO> getAllProducts(final Pageable pageable);
+
+    void creatingProduct(final ProductDTO productDTO);
 }
