@@ -9,4 +9,8 @@ public interface DefaultProductService {
     Page<ProductDTO> getAllProducts(final Pageable pageable);
 
     void creatingProduct(final ProductDTO productDTO);
+
+    Page<ProductDTO> getStockProducts(final Pageable pageable);
+
+    void updateAvailability(final Integer stock, final Long productId);
 }

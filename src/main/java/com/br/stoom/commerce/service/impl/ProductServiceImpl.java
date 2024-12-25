@@ -2,6 +2,7 @@ package com.br.stoom.commerce.service.impl;
 
 import com.br.stoom.commerce.dto.ProductDTO;
 import com.br.stoom.commerce.exceptions.ProductCreationException;
+import com.br.stoom.commerce.model.Enum.AvailabilityStatus;
 import com.br.stoom.commerce.model.ProductModel;
 import com.br.stoom.commerce.repository.ProductRepository;
 import com.br.stoom.commerce.service.DefaultProductService;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductServiceImpl implements DefaultProductService {
@@ -46,12 +48,42 @@ public class ProductServiceImpl implements DefaultProductService {
 
     @Override
     public void creatingProduct(final ProductDTO productDTO) {
-        try{
+        try {
             logger.info("Creating product: {}", productDTO.getTitle());
             final ProductModel productModel = modelMapper.map(productDTO, ProductModel.class);
             productRepository.save(productModel);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new ProductCreationException("Failed to save product: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public Page<ProductDTO> getStockProducts(final Pageable pageable) {
+        final Page<ProductModel> pageOfProducts = productRepository.findAll(pageable);
+
+        final List<ProductDTO> productDTOs = pageOfProducts.getContent().stream()
+                .filter(product ->
+                        product.getAvailability().equals(AvailabilityStatus.IN_STOCK))
+                .map(product -> modelMapper.map(product, ProductDTO.class))
+                .toList();
+
+        return new PageImpl<>(productDTOs, pageable, pageOfProducts.getTotalElements());
+    }
+
+    @Override
+    public void updateAvailability(final Integer stock, final Long productId) {
+        try {
+            final Optional<ProductModel> product = productRepository.findById(productId);
+            if (product.isPresent()) {
+                logger.info("Update product: {}", product.get().getTitle());
+                if (stock > 0) {
+                    product.get().setAvailability(AvailabilityStatus.IN_STOCK);
+                }else{
+                    product.get().setAvailability(AvailabilityStatus.OUT_OF_STOCK);
+                }
+            }
+        } catch (Exception e) {
+            throw new ProductCreationException("Failed to update product: " + e.getMessage(), e);
         }
     }
 }

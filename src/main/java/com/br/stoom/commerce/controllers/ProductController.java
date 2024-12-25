@@ -14,8 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Objects;
-
 
 @RestController
 @RequiredArgsConstructor
@@ -31,7 +29,7 @@ public class ProductController {
 
     @GetMapping
     public PagedModel<ProductDTO> getAllProducts(@RequestParam int page,
-                                                 @RequestParam int size){
+                                                 @RequestParam int size) {
         final Pageable pageable = PageRequest.of(page, size);
         final Page<ProductDTO> pageOfProducts = defaultProductService.getAllProducts(pageable);
 
@@ -40,7 +38,7 @@ public class ProductController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> createProduct(@Validated @RequestBody ProductDTO productDTO){
+    public ResponseEntity<String> createProduct(@Validated @RequestBody ProductDTO productDTO) {
         try {
             defaultProductService.creatingProduct(productDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body("Created product successfully");
@@ -48,6 +46,25 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An unexpected error occurred while creating the product.");
         }
+    }
 
+    @GetMapping("/stock")
+    public PagedModel<ProductDTO> getProductsForStock(@RequestParam int page,
+                                                      @RequestParam int size) {
+        final Pageable pageable = PageRequest.of(page, size);
+        final Page<ProductDTO> pageStockOfProducts = defaultProductService.getStockProducts(pageable);
+
+        return new PagedModel<>(pageStockOfProducts);
+    }
+
+    @PostMapping("/update/stock")
+    public ResponseEntity<String> updateProductAvailability(@Validated @RequestBody Integer stock, @RequestParam Long productId) {
+        try {
+            defaultProductService.updateAvailability(stock, productId);
+            return ResponseEntity.status(HttpStatus.OK).body("Update product successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred while creating the product.");
+        }
     }
 }
