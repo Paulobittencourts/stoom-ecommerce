@@ -13,4 +13,12 @@ public interface DefaultProductService {
     Page<ProductDTO> getStockProducts(final Pageable pageable);
 
     void updateAvailability(final Integer stock, final Long productId);
+
+    Page<ProductDTO> findProductByBrand(final String brand,final Pageable pageable);
+
+    Page<ProductDTO> findProductByCategory(final String category,final Pageable pageable);
+
+    Page<ProductDTO> findProductByBrandAndCategory(final String brand, final String category,final Pageable pageable);
+
+    Boolean deleteByID(final Long productID);
 }
