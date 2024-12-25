@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import static com.br.stoom.commerce.utils.StoomUtils.createPageable;
 
@@ -34,9 +35,7 @@ public class ProductController {
     public PagedModel<ProductDTO> getAllProducts(@RequestParam(required = false, defaultValue = "0") int page,
                                                  @RequestParam(required = false, defaultValue = "10") int size) {
         final Page<ProductDTO> pageOfProducts = defaultProductService.getAllProducts(createPageable(page, size));
-
         return new PagedModel<>(pageOfProducts);
-
     }
 
     @PostMapping("/create")
@@ -53,9 +52,13 @@ public class ProductController {
     @GetMapping("/stock")
     public PagedModel<ProductDTO> getProductsForStock(@RequestParam(required = false, defaultValue = "0") int page,
                                                       @RequestParam(required = false, defaultValue = "10") int size) {
-        final Page<ProductDTO> pageStockOfProducts = defaultProductService.getStockProducts(createPageable(page, size));
-
-        return new PagedModel<>(pageStockOfProducts);
+        try {
+            final Page<ProductDTO> pageStockOfProducts = defaultProductService.getStockProducts(createPageable(page, size));
+            return new PagedModel<>(pageStockOfProducts);
+        } catch (RuntimeException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "An unexpected error occurred while fetching products.", e);
+        }
     }
 
     @PostMapping("/update/stock")
