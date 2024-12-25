@@ -7,10 +7,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PagedModel;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import static com.br.stoom.commerce.utils.StoomUtils.createPageable;
 
@@ -30,9 +33,14 @@ public class ProductSearchController {
     public PagedModel<ProductDTO> getProductByBrand(@RequestParam String brand,
                                                     @RequestParam(required = false, defaultValue = "0") int page,
                                                     @RequestParam(required = false, defaultValue = "10") int size) {
-        final Page<ProductDTO> productDTOs =
-                defaultProductService.findProductByBrand(brand, createPageable(page, size));
-        return new PagedModel<>(productDTOs);
+        try {
+            final Page<ProductDTO> productDTOs =
+                    defaultProductService.findProductByBrand(brand, createPageable(page, size));
+            return new PagedModel<>(productDTOs);
+        } catch (RuntimeException ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error: " + ex.getMessage());
+
+        }
     }
 
     @GetMapping("/category")

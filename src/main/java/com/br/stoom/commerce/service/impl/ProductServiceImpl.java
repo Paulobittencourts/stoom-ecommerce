@@ -60,13 +60,22 @@ public class ProductServiceImpl implements DefaultProductService {
 
     @Override
     public Page<ProductDTO> getStockProducts(final Pageable pageable) {
-        final Page<ProductModel> pageOfProducts = productRepository.findByAvailability(AvailabilityStatus.IN_STOCK, pageable);
+        try {
+            final Page<ProductModel> pageOfProducts = productRepository.findByAvailability(AvailabilityStatus.IN_STOCK, pageable);
 
-        final List<ProductDTO> productDTOs = pageOfProducts.getContent().stream()
-                .map(product -> modelMapper.map(product, ProductDTO.class))
-                .toList();
+            if (pageOfProducts.isEmpty()) {
+                return Page.empty();
+            }
 
-        return new PageImpl<>(productDTOs, pageable, pageOfProducts.getTotalElements());
+            final List<ProductDTO> productDTOs = pageOfProducts.getContent().stream()
+                    .map(product -> modelMapper.map(product, ProductDTO.class))
+                    .toList();
+
+            return new PageImpl<>(productDTOs, pageable, pageOfProducts.getTotalElements());
+        } catch (Exception e) {
+            logger.error("Error when fetching products in stock", e);
+            return Page.empty();
+        }
     }
 
     @Override
